@@ -6,5 +6,6 @@ RUN pip3 install --upgrade pip \
     # pyzmq==17.0.0 \
     jupyter jupyterlab
 
-CMD jupyter lab --port=8888 --ip=* --notebook-dir=/data --no-browser --allow-root
+RUN mkdir /data
+CMD jupyter lab --port=8888 --ip=0.0.0.0 --notebook-dir=/data --no-browser --allow-root
 

@@ -1,0 +1,15 @@
+FROM realsense-jetson-tmp2
+LABEL maintainer "hirokiyokoyama <h-yokoyama@craft-server.co.jp>"
+
+RUN apt-get update && apt-get install -y \
+    ros-kinetic-rgbd-launch \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && rosdep update \
+    && cd /catkin_ws && rosdep -y install --from-paths src --ignore-src --rosdistro kinetic \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN cd /catkin_ws && . /catkin_ws/devel/setup.sh && catkin_make
+
+CMD ["roslaunch", "realsense2_camera", "rs_rgbd.launch"]
+

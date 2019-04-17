@@ -1,0 +1,20 @@
+FROM hirokiyokoyama/catkin-workspace-jetson:xenial-kinetic
+LABEL maintainer "hirokiyokoyama <h-yokoyama@craft-server.co.jp>"
+
+RUN git clone https://github.com/intel-ros/realsense.git \
+    && cd realsense && git checkout 2.0.3 \
+    # to remove dependency on librealsense2
+    && git checkout 44413ec -- realsense2_camera/package.xml \
+    && git checkout 8ab6973 -- realsense2_camera/CMakeLists.txt
+WORKDIR /
+RUN apt-get update && apt-get install -y \
+    unzip wget git software-properties-common udev \
+    && rm -rf /var/lib/apt/lists/*
+RUN git clone https://github.com/jetsonhacks/buildLibrealsense2TX.git \
+    && cd buildLibrealsense2TX && sed -i -e 's/sudo//g' ./installLibrealsense.sh
+
+RUN echo "Please run: nvidia-docker run THIS_IMAGE && docker commit CONTAINER realsense-jetson-tmp"
+WORKDIR /buildLibrealsense2TX
+ENV CUDACXX /usr/local/cuda/bin/nvcc
+CMD ./installLibrealsense.sh
+
