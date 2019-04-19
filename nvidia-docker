@@ -5,11 +5,12 @@
 if [[ $# -ge 2 && $1 == "run" ]]; then
     # Tell docker to share the following folders with the base system
     # This allows the docker containers to find CUDA, cuDNN, TensorRT
+    # ldd /usr/lib/python3.6/dist-packages/cv2.cpython-36m-aarch64-linux-gnu.so | cut -d' ' -f 3 | grep /usr/lib/aarch64-linux-gnu
     LIB_MAPS="/usr/local/cuda \
               /usr/local/cuda/lib64 \
-	      /usr/lib/aarch64-linux-gnu/tegra \
-	      /usr/lib/aarch64-linux-gnu/libcudnn.so.7 \
-	      /usr/lib/aarch64-linux-gnu/libstdc++.so.6"
+	      /usr/lib/aarch64-linux-gnu \
+	      /usr/lib/python3.6/dist-packages/cv2.cpython-36m-aarch64-linux-gnu.so \
+	      /lib/aarch64-linux-gnu" 
 		 
     # GPU device sharing is for a docker container to have access to
     # system devices as found in the /dev directory
@@ -23,8 +24,12 @@ if [[ $# -ge 2 && $1 == "run" ]]; then
 	# There is a need to map the libraries inside the container
 	# in the exact way programs would expect to find them as
 	# though the TX2 were operating without containers
-	LIBS="-v /lib/aarch64-linux-gnu/libm-2.27.so:/usr/lib/aarch64-linux-gnu/libm.so.6"
+	#LIBS="-v /lib/aarch64-linux-gnu/libm-2.27.so:/usr/lib/aarch64-linux-gnu/libm.so.6"
+	LIBS=""
 	for lib in $LIB_MAPS; do
+		LIBS="$LIBS -v $lib:$lib"
+	done
+	for lib in `ls /usr/lib/libopencv_*`; do
 		LIBS="$LIBS -v $lib:$lib"
 	done
 	
@@ -34,6 +39,7 @@ if [[ $# -ge 2 && $1 == "run" ]]; then
 	done
 
 	ENVS="-e LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/lib/aarch64-linux-gnu:/usr/lib/aarch64-linux-gnu/tegra"
+	ENVS="$ENVS -e PYTHONPATH=/usr/lib/python3.6/dist-packages"
 	
 	#echo "docker run $LIBS $DEVS ${@:2}"
 	docker run $LIBS $DEVS $ENVS ${@:2}
