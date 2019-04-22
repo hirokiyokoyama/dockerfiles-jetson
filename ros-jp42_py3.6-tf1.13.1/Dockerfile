@@ -27,13 +27,14 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 RUN apt-get update && apt-get install --no-install-recommends -y \
     ros-melodic-cv-bridge \
     && rm -rf /var/lib/apt/lists/* \
-COPY ./cv_bridge /opt/ros/melodic/lib/python3.6/dist-packages #TODO check if this directory exists
+    && pip install pyyaml 
+COPY ./cv_bridge /opt/ros/melodic/lib/python2.7/dist-packages/cv_bridge
+#COPY ./cv_bridge /usr/local/lib/python3.6/dist-packages
 
 # setup catkin_ws
 RUN mkdir -p /catkin_ws/src && cd /catkin_ws/src \
     && . /opt/ros/melodic/setup.sh && catkin_init_workspace \
     && cd .. && catkin_make
-ADD ./devel.tar.gz .
 
 WORKDIR /catkin_ws/src
 COPY ./entrypoint.sh /
