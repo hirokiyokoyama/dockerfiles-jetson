@@ -36,6 +36,9 @@ RUN mkdir -p /catkin_ws/src && cd /catkin_ws/src \
     && . /opt/ros/melodic/setup.sh && catkin_init_workspace \
     && cd .. && catkin_make
 
+# other dependencies
+RUN pip install rospkg
+
 WORKDIR /catkin_ws/src
 COPY ./entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
