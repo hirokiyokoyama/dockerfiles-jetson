@@ -2,14 +2,22 @@ FROM realsense-jetson-tmp2
 LABEL maintainer "hirokiyokoyama <h-yokoyama@craft-server.co.jp>"
 
 RUN apt-get update && apt-get install -y \
-    ros-kinetic-rgbd-launch \
+    ros-melodic-rgbd-launch \
     && rm -rf /var/lib/apt/lists/*
 
+# setup catkin_ws
+RUN mkdir -p /catkin_ws/src && cd /catkin_ws/src \
+    && . /opt/ros/melodic/setup.sh && catkin_init_workspace \
+    && cd .. && catkin_make
+RUN mv /realsense /catkin_ws/src
+
 RUN apt-get update && rosdep update \
-    && cd /catkin_ws && rosdep -y install --from-paths src --ignore-src --rosdistro kinetic \
+    && cd /catkin_ws && rosdep -y install --from-paths src --ignore-src --rosdistro melodic \
     && rm -rf /var/lib/apt/lists/*
 
 RUN cd /catkin_ws && . /catkin_ws/devel/setup.sh && catkin_make
 
+COPY ./entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["roslaunch", "realsense2_camera", "rs_rgbd.launch"]
 

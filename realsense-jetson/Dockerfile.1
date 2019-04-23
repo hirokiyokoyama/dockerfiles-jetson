@@ -1,5 +1,31 @@
-FROM hirokiyokoyama/catkin-workspace-jetson:xenial-kinetic
+FROM ubuntu:bionic
 LABEL maintainer "hirokiyokoyama <h-yokoyama@craft-server.co.jp>"
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
+
+RUN echo "deb http://packages.ros.org/ros/ubuntu bionic main" > /etc/apt/sources.list.d/ros-latest.list
+
+RUN apt-get update && apt-get install \
+    -o Dpkg::Options::="--force-confnew" --no-install-recommends -y \
+    python-rosdep \
+    python-rosinstall \
+    python-vcstools \
+    ros-melodic-ros-base \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/* \
+    && rosdep init
+
+# to resolve *.local hostname
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    avahi-daemon \
+    libnss-mdns \
+    && rm -rf /var/lib/apt/lists/* \
+    && sed -i -e 's/#enable-dbus=yes/enable-dbus=no/g' /etc/avahi/avahi-daemon.conf
 
 RUN git clone https://github.com/intel-ros/realsense.git \
     && cd realsense && git checkout 2.0.3 \
@@ -12,6 +38,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 RUN git clone https://github.com/jetsonhacks/buildLibrealsense2TX.git \
     && cd buildLibrealsense2TX && sed -i -e 's/sudo//g' ./installLibrealsense.sh
+
+# GLFW3 seems to depend GLU
+RUN apt-get update && apt-get install -y \
+    libglu1-mesa-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN echo "Please run: nvidia-docker run THIS_IMAGE && docker commit CONTAINER realsense-jetson-tmp"
 WORKDIR /buildLibrealsense2TX
