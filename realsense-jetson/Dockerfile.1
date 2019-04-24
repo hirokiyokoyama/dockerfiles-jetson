@@ -27,19 +27,23 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     && rm -rf /var/lib/apt/lists/* \
     && sed -i -e 's/#enable-dbus=yes/enable-dbus=no/g' /etc/avahi/avahi-daemon.conf
 
-RUN git clone https://github.com/intel-ros/realsense.git \
+# setup catkin_ws
+RUN mkdir -p /catkin_ws/src && cd /catkin_ws/src \
+    && . /opt/ros/melodic/setup.sh && catkin_init_workspace \
+    && cd .. && catkin_make
+
+RUN cd /catkin_ws/src && git clone https://github.com/intel-ros/realsense.git \
     && cd realsense && git checkout 2.0.3 \
     # to remove dependency on librealsense2
     && git checkout 44413ec -- realsense2_camera/package.xml \
     && git checkout 8ab6973 -- realsense2_camera/CMakeLists.txt
-WORKDIR /
 RUN apt-get update && apt-get install -y \
     unzip wget git software-properties-common udev \
     && rm -rf /var/lib/apt/lists/*
 RUN git clone https://github.com/jetsonhacks/buildLibrealsense2TX.git \
     && cd buildLibrealsense2TX && sed -i -e 's/sudo//g' ./installLibrealsense.sh
 
-# GLFW3 seems to depend GLU
+# GLFW3 seems to depend on GLU
 RUN apt-get update && apt-get install -y \
     libglu1-mesa-dev \
     && rm -rf /var/lib/apt/lists/*
