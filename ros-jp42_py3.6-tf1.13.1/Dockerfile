@@ -40,7 +40,22 @@ RUN pip install catkin_pkg rospkg empy
 RUN apt-get update && apt-get install --no-install-recommends -y \
     libbullet-dev libeigen3-dev \
     ros-melodic-orocos-kdl ros-melodic-angles \
-    && rm -rf /var/lib/apt/lists/* 
+    && rm -rf /var/lib/apt/lists/*
+# needed by tf2_kdl and tf2_geometry_msgs but cannot build...
+#RUN cd / && git clone https://github.com/foolyc/PyKDL.git \
+#    && cd /PyKDL && git checkout 9b387f1 \
+#    && sed -i -e "s/python3.5m/python3.6m/g" \
+#              -e "s/py35/py36/g" \
+#              -e "s/1.58/1.65/g" -e "s/1.58.0/1.65.1/g" \
+#              CMakeLists.txt \
+#    && sed -i -e "s/python3.5m/python3.6m/g" \
+#              -e "s/kinetic/melodic/g" \
+#              -e "s|/usr/local|/usr|g" \
+#              python_orocos_kdl/CMakeLists.txt \
+#    && . /opt/ros/melodic/setup.sh \
+#    && mkdir build && cd build && cmake .. && make \
+#    && cp lib/PyKDL.so /usr/lib/python3/dist-packages \
+#    && rm -rf /PyKDL
 RUN cd /catkin_ws/src && git clone https://github.com/ros/geometry.git \
                       && git clone https://github.com/ros/geometry2.git \
     && cd /catkin_ws && . devel/setup.sh \
