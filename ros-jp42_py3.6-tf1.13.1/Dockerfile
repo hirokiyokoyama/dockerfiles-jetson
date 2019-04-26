@@ -5,7 +5,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
 
 RUN echo "deb http://packages.ros.org/ros/ubuntu bionic main" > /etc/apt/sources.list.d/ros-latest.list
-
 RUN apt-get update && apt-get install \
     -o Dpkg::Options::="--force-confnew" --no-install-recommends -y \
     python-rosdep \
@@ -36,8 +35,19 @@ RUN mkdir -p /catkin_ws/src && cd /catkin_ws/src \
     && . /opt/ros/melodic/setup.sh && catkin_init_workspace \
     && cd .. && catkin_make
 
-# other dependencies
-RUN pip install rospkg
+# setup tf and tf2 for python3
+RUN pip install catkin_pkg rospkg empy
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    libbullet-dev libeigen3-dev \
+    ros-melodic-orocos-kdl ros-melodic-angles \
+    && rm -rf /var/lib/apt/lists/* 
+RUN cd /catkin_ws/src && git clone https://github.com/ros/geometry.git \
+                      && git clone https://github.com/ros/geometry2.git \
+    && cd /catkin_ws && . devel/setup.sh \
+    && catkin_make -DPYTHON_EXECUTABLE=/usr/local/bin/python3.6 \
+                   -DPYTHON_LIBRARY=/usr/local/bin/python3.6 \
+                   -DPYTHON_VERSION=3 \
+                   -DCMAKE_BUILD_TYPE="Release"
 
 WORKDIR /catkin_ws/src
 COPY ./entrypoint.sh /
