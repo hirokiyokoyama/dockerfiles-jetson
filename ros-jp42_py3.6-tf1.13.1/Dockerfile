@@ -41,7 +41,12 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libbullet-dev libeigen3-dev \
     ros-melodic-orocos-kdl ros-melodic-angles \
     && rm -rf /var/lib/apt/lists/*
-# needed by tf2_kdl and tf2_geometry_msgs but cannot build...
+ADD ./sip-4.19.17.tar.gz /
+COPY ./liborocos-kdl1.4_1.4.0-6_arm64.deb /
+COPY ./python3-pykdl_1.4.0-6_arm64.deb /
+RUN cd /sip-4.19.17 && python configure.py && make && make install
+RUN dpkg -i liborocos-kdl1.4_1.4.0-6_arm64.deb
+RUN dpkg -i python3-pykdl_1.4.0-6_arm64.deb
 #RUN cd / && git clone https://github.com/foolyc/PyKDL.git \
 #    && cd /PyKDL && git checkout 9b387f1 \
 #    && sed -i -e "s/python3.5m/python3.6m/g" \
