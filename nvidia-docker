@@ -8,7 +8,6 @@ if [[ $# -ge 2 && $1 == "run" ]]; then
     # ldd /usr/lib/python3.6/dist-packages/cv2.cpython-36m-aarch64-linux-gnu.so | cut -d' ' -f 3 | grep /usr/lib/aarch64-linux-gnu
     LIB_MAPS="/usr/local/cuda \
               /usr/local/cuda/lib64 \
-	      /usr/lib/aarch64-linux-gnu \
 	      /usr/lib/python3.6/dist-packages/cv2.cpython-36m-aarch64-linux-gnu.so \
 	      /lib/aarch64-linux-gnu" 
 		 
@@ -25,7 +24,7 @@ if [[ $# -ge 2 && $1 == "run" ]]; then
 	# in the exact way programs would expect to find them as
 	# though the TX2 were operating without containers
 	#LIBS="-v /lib/aarch64-linux-gnu/libm-2.27.so:/usr/lib/aarch64-linux-gnu/libm.so.6"
-	LIBS=""
+	LIBS="-v /usr/lib/aarch64-linux-gnu:/usr/lib/aarch64-linux-gnu/host"
 	for lib in $LIB_MAPS; do
 		LIBS="$LIBS -v $lib:$lib"
 	done
@@ -38,8 +37,8 @@ if [[ $# -ge 2 && $1 == "run" ]]; then
 		DEVS="$DEVS --device=$dev"
 	done
 
-	ENVS="-e LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/lib/aarch64-linux-gnu:/usr/lib/aarch64-linux-gnu/tegra"
-	ENVS="$ENVS -e PYTHONPATH=/usr/lib/python3.6/dist-packages"
+	ENVS="-e LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/lib/aarch64-linux-gnu:/usr/lib/aarch64-linux-gnu/host/tegra:/usr/lib/aarch64-linux-gnu/host"
+	ENVS="$ENVS -e PYTHONPATH=/usr/lib/python3/dist-packages:/usr/lib/python3.6/dist-packages"
 	
 	#echo "docker run $LIBS $DEVS ${@:2}"
 	docker run $LIBS $DEVS $ENVS ${@:2}
