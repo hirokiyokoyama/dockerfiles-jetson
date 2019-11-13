@@ -4,7 +4,7 @@ build --python_path="/usr/local/bin/python"
 build:xla --define with_xla_support=true
 build --config=xla
 build --action_env CUDA_TOOLKIT_PATH="/usr/local/cuda"
-build --action_env TF_CUDA_COMPUTE_CAPABILITIES="7.2"
+build --action_env TF_CUDA_COMPUTE_CAPABILITIES="5.3,6.2,7.2"
 build --action_env GCC_HOST_COMPILER_PATH="/usr/bin/gcc"
 build --config=cuda
 build:opt --copt=-march=native

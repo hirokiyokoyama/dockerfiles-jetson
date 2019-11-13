@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cp -r `readlink -f /usr/lib/cuda` ./cuda
+cp -r `readlink -f /usr/local/cuda` ./cuda
 cp /usr/lib/aarch64-linux-gnu/tegra/libcuda.so* ./cuda/lib64/
 cp /usr/lib/aarch64-linux-gnu/libcudnn.so.7* ./cuda/lib64/
 #cp /usr/include/aarch64-linux-gnu/cudnn_v7.h ./cuda/include/cudnn.h
